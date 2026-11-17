@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>beabadoobee</title>
+  <style>
+    body {
+      background: #fff;
+      color: #000;
+      font-family: "Times New Roman", Times, serif;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 0 16px;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .player {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px 12px;
+      margin: 16px 0;
+    }
+    .player button {
+      font: inherit;
+      color: inherit;
+      background: none;
+      border: 1px solid #000;
+      border-radius: 8px;
+      padding: 4px 0;
+      width: 4.5em;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .player .title { flex: 1; }
+    .player .time { font-variant-numeric: tabular-nums; color: #555; }
+    .player .bar {
+      flex-basis: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: #e5e5e5;
+      margin-left: 48px;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .player .fill {
+      height: 100%;
+      width: 0;
+      background: #000;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <p><a href="../index.html">← back</a></p>
+  <p><strong>fav songs</strong></p>
+  <ul>
+    <li class="player">
+      <button class="play">play</button>
+      <span class="title">back to mars</span>
+      <span class="time">0:00</span>
+      <div class="bar"><div class="fill"></div></div>
+      <audio src="../audio/backtomars.mp3" preload="metadata"></audio>
+    </li>
+    <li class="player">
+      <button class="play">play</button>
+      <span class="title">worth it</span>
+      <span class="time">0:00</span>
+      <div class="bar"><div class="fill"></div></div>
+      <audio src="../audio/worthit.mp3" preload="metadata"></audio>
+    </li>
+    <li class="player">
+      <button class="play">play</button>
+      <span class="title">care</span>
+      <span class="time">0:00</span>
+      <div class="bar"><div class="fill"></div></div>
+      <audio src="../audio/care.mp3" preload="metadata"></audio>
+    </li>
+    <li class="player">
+      <button class="play">play</button>
+      <span class="title">last day on earth</span>
+      <span class="time">0:00</span>
+      <div class="bar"><div class="fill"></div></div>
+      <audio src="../audio/lastdayonearth.mp3" preload="metadata"></audio>
+    </li>
+  </ul>
+
+  <script>
+    const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+
+    document.querySelectorAll('.player').forEach(p => {
+      const audio = p.querySelector('audio');
+      const btn = p.querySelector('.play');
+      const fill = p.querySelector('.fill');
+      const time = p.querySelector('.time');
+
+      const update = () => {
+        const d = audio.duration || 0;
+        fill.style.width = d ? (audio.currentTime / d * 100) + '%' : '0';
+        time.textContent = fmt(audio.currentTime) + (d ? ' / ' + fmt(d) : '');
+      };
+
+      btn.onclick = () => {
+        // pause any other song that's playing
+        document.querySelectorAll('.player audio').forEach(a => { if (a !== audio) a.pause(); });
+        audio.paused ? audio.play() : audio.pause();
+      };
+      audio.onplay = () => btn.textContent = 'pause';
+      audio.onpause = () => btn.textContent = 'play';
+      audio.onended = () => { audio.currentTime = 0; update(); };
+      audio.ontimeupdate = update;
+      audio.onloadedmetadata = update;
+
+      p.querySelector('.bar').onclick = e => {
+        if (!audio.duration) return;
+        const r = e.currentTarget.getBoundingClientRect();
+        audio.currentTime = (e.clientX - r.left) / r.width * audio.duration;
+      };
+    });
+  </script>
+</body>
+</html>
